@@ -1,3 +1,10 @@
 import App
 
-try app(.detect()).run()
+do {
+    try app(.detect()).run()
+} catch {
+    
+    try? app(.detect()).syncShutdownGracefully()
+    throw error
+}
+

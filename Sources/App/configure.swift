@@ -1,5 +1,6 @@
 import FluentSQLite
 import Vapor
+import MongoSwift
 
 /// Called before your application initializes.
 public func configure(_ config: inout Config, _ env: inout Environment, _ services: inout Services) throws {
@@ -29,4 +30,17 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     var migrations = MigrationConfig()
     migrations.add(model: Todo.self, database: .sqlite)
     services.register(migrations)
+    
+    // MongoDB Connection
+    let clientMongoDB = try! MongoClient("mongodb://localhost:27017")
+    let db = try! clientMongoDB.db("jpaNoSQLTestDB")
+    let collection: MongoCollection<Document>
+    do {
+        collection = try db.createCollection("swiftCollection")
+    } catch {
+        collection = try db.collection("swiftCollection")
+    }
+    services.register(clientMongoDB)
 }
+
+extension MongoClient: Service {}
