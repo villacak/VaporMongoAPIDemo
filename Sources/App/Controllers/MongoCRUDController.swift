@@ -21,12 +21,17 @@ final class MongoCRUDController {
         if (dataReturn!.isEmpty) {
             response = try! ReadyResponse.badRequest(dataString: dataReturn!)
         } else {
-            let document = try! Document.init(fromJSON: dataReturn!)
-            let collection = getMongoCollection(mongoCollectionName: Constant.COLLECTION_NAME)
-            let result = try collection.insertOne(document)
-            print(result?.insertedId ?? "Fail")
-            response = try! ReadyResponse.success(messageString: "Data persisted with success!", dataString: dataReturn!)
-            cleanupMongoSwift()
+            do {
+                let document = try! Document.init(fromJSON: dataReturn!)
+                let collection = getMongoCollection(mongoCollectionName: Constant.COLLECTION_NAME)
+                let result = try collection.insertOne(document)
+                print(result?.insertedId ?? "Fail")
+                response = try! ReadyResponse.success(messageString: "Data persisted with success!", dataString: dataReturn!)
+                cleanupMongoSwift()
+            } catch {
+                cleanupMongoSwift()
+                response = try! ReadyResponse.internalServerError(dataString: dataReturn!)
+            }
         }
         return response
     }
